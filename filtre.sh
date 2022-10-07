@@ -12,7 +12,6 @@ do
 	Tipus : \t $type\n\
 	Títol : \t $title\n"
 	
-
 done<netflix_titles.csv
 IFS=$OLDIFS
 
