@@ -9,11 +9,4 @@
 # awk -F "," ' NR > 1 { if ($1 ~ "ts[0-9]*") print $0}' ShowData.csv > ShowData2.csv
 # awk -F "," ' NR > 1 { if ($1 ~ "ts[0-9]*") print $0}' MovieData.csv > MovieData2.csv
 
-
-
-#awk -F "," ' NR > 1 { if ($2 ~ "#*") print $0}' ShowData.csv > Residus.csv
-
-# awk -F "," ' NR > 1 { if ($2 ~ "[a-z][A-Z][1-9]*") print $0}' ShowData2.csv > ShowData3.csv
-
-
-awk -F "," ' NR > 1 { if ( ($2 !~ /^[A-Z]/)) print $0}' ShowData2.csv  > asdf.csv 
+awk -F "," ' NR > 1 { if (($2 !~ /^[A-Z]/) && ($2 !~ /^[a-z]/) && ($2 !~ /^[0-9]/) && ($2 !~ /^ /)) print $0}' ShowData2.csv  > asdf.csv 
