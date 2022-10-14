@@ -1,5 +1,6 @@
 #!/bin/bash
 
-rm ShowData.csv
-rm MovieData.csv
+rm Shows.csv
+rm Movies.csv
 rm Debris.csv
+rm Debrist.csv
