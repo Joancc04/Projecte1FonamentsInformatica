@@ -3,7 +3,7 @@
 ./elim.sh
 echo Creant arxius de dades...
 touch Shows.csv  #arxiu amb dades netes de shows
-touch Movies.csv #arxiu amb pelis netes de shows
+touch Movies.csv #arxiu amb dades netes de pelis
 touch Debris.csv #debris total (contador)
 touch Debrisid.csv #debris ids (contador)
 touch Debrisc.csv #debris columnes 11 - 15 (contador)
