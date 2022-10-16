@@ -38,3 +38,4 @@ echo
 awk 'END{print NR, "línies totals en el fitxer de dades original"}' RawData.csv
 
 
+#awk  -F "," '{printf "%s,%s,%4.2f\n", $17 , $17, $13/$14 }' Movies.csv
