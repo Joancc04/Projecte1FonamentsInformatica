@@ -15,14 +15,14 @@ touch Debrisc.csv #debris columnes 11 - 15 (contador)
 
 #trasllat i dividit de les dades útils
 echo Classificant i netejant dades...
-awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 != "")  )    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Shows.csv
-awk -F "," ' NR > 1 { if ( (($1 ~ "tm[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 != "")  )    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Movies.csv
+awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Shows.csv
+awk -F "," ' NR > 1 { if ( (($1 ~ "tm[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Movies.csv
 
 
 #eliminat de les dades inservibles
-awk -F "," ' NR > 1 { if (     (($1 !~ "ts[0-9]") && ($1 !~ "tm[0-9]"))    ||     (($2 !~ /^[A-Z]/) && ($2 !~ /^[0-9]/))    ||    (($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 == ""))      ) print $0}' RawData.csv  > Debris.csv 
+awk -F "," ' NR > 1 { if (     (($1 !~ "ts[0-9]") && ($1 !~ "tm[0-9]"))    ||     (($2 !~ /^[A-Z]/) && ($2 !~ /^[0-9]/))    ||    (($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 !~ /^[0-9]/))      ) print $0}' RawData.csv  > Debris.csv 
 awk -F "," ' NR > 1 { if (($1 !~ "tm[0-9]") && ($1 !~ "ts[0-9]") && ($1 !~ ",")) print $0}' RawData.csv  > Debrisid.csv 
-awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") || ($1 ~ "ts[0-9]")) && ( ($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 == "")  )) print $0}' RawData.csv > Debrisc.csv
+awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") || ($1 ~ "tm[0-9]")) && ( ($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 !~ /^[0-9]/)  )) print $0}' RawData.csv > Debrisc.csv
 sed -i '/",,,,,,,,,,,,,,"/d' Debrisid.csv
 
 
