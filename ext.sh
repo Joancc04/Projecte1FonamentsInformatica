@@ -41,7 +41,7 @@ echo Classificant i netejant dades...
 awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Shows.csv
 awk -F "," ' NR > 1 { if ( (($1 ~ "tm[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Movies.csv
 awk -F "," ' NR > 1 { if ( ((($1 ~ "tm[0-9]") || ($1 ~ "ts[0-9]"))&& ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > MS.csv
-# awk -F "," '{printf "%s%f\n", $16, $13/$14}' Movies.csv
+# awk -F "," '$16={printf "%s%f\n", $13/$14}' Movies.csv
 
 
 #eliminat de les dades inservibles
@@ -69,14 +69,16 @@ echo
 
 awk -v maxp=0 '{if($13>maxp){want=$16; maxp=$13}}END{print want} ' MS.csv
 
-awk -F "," BEGIN{maxp=0}  '{if $13 > maxp {maxp=$13, print maxp}}' MS.csv
-awk -F "," '{$16=($13/$14)}' MS.csv
+awk -F "," 'BEGIN {maxp=0} { if ($13 > maxp) maxp=$13} END {print maxp}' MS.csv #és la que està bé
 
+# awk -F "," '{$16=($13/$14)}' MS.csv
+# 'BEGIN DFS="," {$16=()}
+
+awk -F "," 'BEGIN{a=795222}{if ($13>a) a=$13 fi} END{print a}' MS.csv
 awk -F "," 'BEGIN{a=0}{if ($13>a) a=$13 fi} END{print a}' MS.csv
-awk -F "," 'BEGIN{a=0}{if ($13<a) a=$13 fi} END{print a}' MS.csv
 
-awk -F "," 'BEGIN{print($13/$14), $16}' MS.csv
-
+# awk -F "," 'BEGIN{print($13/$14), $16}' MS.csv
+# awk -F "," '$16={printf "%s%f\n", $13/$14}' Movies.csv
 
 # afegim els títols fora dels contadors per tal que no influeixin
 sed -i '1i"id,title,type,description,release_year,age_certification,runtime,genres,production_countries, ,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability"' Movies.csv
