@@ -12,7 +12,7 @@ do
 	Tipus :\t $type\n\
 	Títol :\t $title\n"
 
-done < <(tail -n +2 MovieData.csv)
+done < <(tail -n +2 Movies.csv)
 #fem servir "tail -n +2" per tal de que el programa no llegeixi la primera línia de l'arxiu csv, la qual conté el títol de cada columna.
 
 
