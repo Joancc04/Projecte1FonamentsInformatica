@@ -7,8 +7,8 @@ elim () {
     rm Debris.csv
     rm Debrisid.csv
     rm Debrisc.csv
+    rm aux.csv
     rm MS.csv
-    rm prova.csv
 }
 
 echo "Tens dades anteriors? (S/n)"
@@ -27,8 +27,8 @@ touch Movies.csv #arxiu amb dades netes de pelis
 touch Debris.csv #debris total (contador)
 touch Debrisid.csv #debris ids (contador)
 touch Debrisc.csv #debris columnes 11 - 15 (contador)
+touch aux.csv
 touch MS.csv
-touch prova.csv
 
 
 
@@ -42,14 +42,14 @@ touch prova.csv
 echo Classificant i netejant dades...
 awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Shows.csv
 awk -F "," ' NR > 1 { if ( (($1 ~ "tm[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > Movies.csv
-awk -F "," ' NR > 1 { if ( ((($1 ~ "tm[0-9]") || ($1 ~ "ts[0-9]"))&& ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > MS.csv
+awk -F "," ' NR > 1 { if ( ((($1 ~ "tm[0-9]") || ($1 ~ "ts[0-9]"))&& ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' RawData.csv > aux.csv
 # awk -F "," '$16={printf "%s%f\n", $13/$14}' Movies.csv
 
 
 #eliminat de les dades inservibles
-awk -F "," ' NR > 1 { if (     (($1 !~ "ts[0-9]") && ($1 !~ "tm[0-9]"))    ||     (($2 !~ /^[A-Z]/) && ($2 !~ /^[0-9]/))    ||    (($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 !~ /^[0-9]/))      ) print $0}' RawData.csv  > Debris.csv 
-awk -F "," ' NR > 1 { if (($1 !~ "tm[0-9]") && ($1 !~ "ts[0-9]") && ($1 !~ ",")) print $0}' RawData.csv  > Debrisid.csv 
-awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") || ($1 ~ "tm[0-9]")) && ( ($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 !~ /^[0-9]/)  )) print $0}' RawData.csv > Debrisc.csv
+awk -F "," ' NR > 1 { if (     (($1 !~ "ts[0-9]") && ($1 !~ "tm[0-9]"))    ||     ( ($2 !~ /^[A-Z]/) && ($2 !~ /^[0-9]/) )     ||     (($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 !~ /^[0-9]/) )      ) print $0}' RawData.csv  > Debris.csv 
+awk -F "," ' NR > 1 { if (     (($1 ~ "ts[0-9]")  || ($1 ~ "tm[0-9]"))     &&     ( ($11 == "") || ($12 == "") || ($13 == "") || ($14 == "") || ($15 !~ /^[0-9]/) )      ) print $0}' RawData.csv > Debrisc.csv
+awk -F "," ' NR > 1 { if (      ($1 !~ "tm[0-9]") && ($1 !~ "ts[0-9]")     &&     ($1 !~ ",")      ) print $0}' RawData.csv  > Debrisid.csv 
 sed -i '/",,,,,,,,,,,,,,"/d' Debrisid.csv
 #
 
@@ -69,22 +69,25 @@ echo
 #NR = Number of Records
 
 
-awk -F "," 'BEGIN{maxv=0} { if($13 > maxv) maxv=$13} END{print "El número més gran imdb_votes és:", maxv}' MS.csv #troba el màxim de la columna 13
-awk -F "," 'BEGIN{maxp=0} { if($14 > maxp) maxp=$14} END{print "El número més gran tmdb_popularity és:", maxp}' MS.csv #troba el màxim de la columna 14
+awk -F "," 'BEGIN{maxv=0} { if($13 > maxv) maxv=$13} END{print "El número més gran imdb_votes és:", maxv}' aux.csv #troba el màxim de la columna 13
+awk -F "," 'BEGIN{maxp=0} { if($14 > maxp) maxp=$14} END{print "El número més gran tmdb_popularity és:", maxp}' aux.csv #troba el màxim de la columna 14
+
+#$12 imdb score $13 imdb votes $14 tmdb popularitat $15 tmdb score
+awk -F "," '{print $0 "," $12*($13/(2268288)) "," $14*($15/(971.727))}' aux.csv > MS.csv
+
+sed -i 's/\"//g' MS.csv #borra totes les dobles comes del script
 
 
-awk -F "," '{print $0, $12*($13/(2268288))}' MS.csv > prova.csv
-# paste MS.csv prova.csv | awk '{print $6, $NF}' > test3.txt
 echo "Títols als documents? (S/n)"
 read c
-
-
-if [ $c != "S" ];
+if [ $c == "S" ];
 then
     # afegim els títols fora dels contadors per tal que no influeixin
-    sed -i '1i"id,title,type,description,release_year,age_certification,runtime,genres,production_countries, ,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability"' Movies.csv
-    sed -i '1i"id,title,type,description,release_year,age_certification,runtime,genres,production_countries,seasons,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability"' Shows.csv
-    sed -i '1i"id,title,type,description,release_year,age_certification,runtime,genres,production_countries,seasons,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability"' MS.csv
+    sed -i '1iid,title,type,description,release_year,age_certification,runtime,genres,production_countries, ,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability' Movies.csv
+    sed -i '1iid,title,type,description,release_year,age_certification,runtime,genres,production_countries,seasons,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability' Shows.csv
+    sed -i '1iid,title,type,description,release_year,age_certification,runtime,genres,production_countries,seasons,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability' aux.csv
+    sed -i '1iid,title,type,description,release_year,age_certification,runtime,genres,production_countries,seasons,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability' MS.csv
+
 fi
 
 echo "T'agradaria conservar les dades? (S/n)"
