@@ -28,6 +28,7 @@ touch Debris.csv #debris total (contador)
 touch Debrisid.csv #debris ids (contador)
 touch Debrisc.csv #debris columnes 11 - 15 (contador)
 touch aux.csv
+touch aux2.csv
 touch MS.csv
 
 
@@ -68,14 +69,22 @@ awk 'END{print NR, "línies totals en el fitxer de dades original"}' RawData.csv
 echo
 #NR = Number of Records
 
-
+#$12 imdb score $13 imdb votes $14 tmdb popularitat $15 tmdb score
+awk -F "," 'BEGIN{max1=0} { if($13 > max1) max1=$13} {print $0 "," $12*($13/max1)}' aux.csv > aux2.csv 
+awk -F "," 'BEGIN{max1=0} { if($14 > max2) max2=$14} {print $0 "," $14*($15/max2)}' aux2.csv > MS.csv 
+echo 
 awk -F "," 'BEGIN{maxv=0} { if($13 > maxv) maxv=$13} END{print "El número més gran imdb_votes és:", maxv}' aux.csv #troba el màxim de la columna 13
 awk -F "," 'BEGIN{maxp=0} { if($14 > maxp) maxp=$14} END{print "El número més gran tmdb_popularity és:", maxp}' aux.csv #troba el màxim de la columna 14
+echo 
 
-#$12 imdb score $13 imdb votes $14 tmdb popularitat $15 tmdb score
-awk -F "," '{print $0 "," $12*($13/(2268288)) "," $14*($15/(971.727))}' aux.csv > MS.csv
+sed -i 's/\"//g' MS.csv #borra totes les dobles comes del script, /g per incloure no només les del principi
 
-sed -i 's/\"//g' MS.csv #borra totes les dobles comes del script
+awk -F "," 'BEGIN{a=0} { if ($12 > a && $3=="MOVIE") a=$12} END{print "La pel·lícula amb la millor puntuació imdb és:", a}' MS.csv
+awk -F "," 'BEGIN{b=0} { if ($12 > b && $3=="SHOW") b=$12} END{print "La serie amb la millor puntuació imdb és:", b}' MS.csv
+awk -F "," 'BEGIN{c=0} { if ($13 > c && $3=="MOVIE") c=$13} END{print "La pel·lícula més popular segons imdb és:", c}' MS.csv
+awk -F "," 'BEGIN{d=0} { if ($13 > d && $3=="SHOW") d=$13} END{print "La serie més popular segons imdb és:", d}' MS.csv
+awk -F "," 'BEGIN{e=0} { if ($16 > e && $3=="MOVIE") e=$16} END{print "La pel·lícula amb el millor coeficient Imdb és:", e}' MS.csv
+awk -F "," 'BEGIN{f=0} { if ($16 > f && $3=="SHOW") f=$16} END{print "La serie amb el millor coeficient IMDB és:", f}' MS.csv
 
 
 echo "Títols als documents? (S/n)"
@@ -97,5 +106,6 @@ then
     elim
     echo "S'han borrat les dades"
 fi
-
+rm aux.csv
+rm aux2.csv
 
