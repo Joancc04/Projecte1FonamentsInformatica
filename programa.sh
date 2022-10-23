@@ -1,5 +1,18 @@
 #! /bin/bash
 
+_crearArxius () {
+    echo "Creant arxius de dades..."
+    touch Shows.csv  #arxiu amb dades netes de shows
+    touch Movies.csv #arxiu amb dades netes de pelis
+    touch MiS.csv #arxiu amb pel·lícules i series (Movies&Shows)
+
+    touch Debris.csv #debris total (contador)
+    touch Debrisid.csv #debris id's (contador)
+    touch Debrisc.csv #debris columnes 12 - 15 (contador)
+    touch aux1.csv #arxiu auxiliar1
+    touch aux2.csv #arxiu auxiliar2
+}
+
 _elimData () {
     rm Shows.csv
     rm Movies.csv
@@ -20,20 +33,6 @@ _saltLinia () {
     echo
 }
 
-_crearArxius () {
-    echo Creant arxius de dades...
-    touch Shows.csv  #arxiu amb dades netes de shows
-    touch Movies.csv #arxiu amb dades netes de pelis
-    touch MiS.csv #arxiu amb pel·lícules i series (Movies&Shows)
-
-    touch Debris.csv #debris total (contador)
-    touch Debrisid.csv #debris ids (contador)
-    touch Debrisc.csv #debris columnes 11 - 15 (contador)
-    touch aux1.csv #arxiu auxiliar1
-    touch aux2.csv #arxiu auxiliar2
-}
-
-
 #amb la comanda sed -i, i posant com a primers caràcters "1i" aconseguim enganxar les línies següents als princips dels arxius de dades.
 _titols() {
     sed -i '1iid,title,type,description,release_year,age_certification,runtime,genres,production_countries, ,imdb_id,imdb_score,imdb_votes,tmdb_popularity,tmdb_score,imdb_reliability,tmdb_reliability' Movies.csv
@@ -42,20 +41,20 @@ _titols() {
 }
 
 
+
 #Borrat dels arxius de dades anteriors en cas d'haver-les guardat al final del programa.
 echo "Tens arxius de dades anteriors? (S/n)"
 read a 
 if [ $a == "S" ];
 then
     _elimData
-    _crearArxius
-else
-    _crearArxius
 fi
+_crearArxius
+
 
 
 #Filtrat de les dades útils, i divisió d'aquestes en diferents arxius.
-echo Classificant i netejant dades...
+echo "Classificant i netejant dades..."
 awk -F "," ' NR > 1 { if ( (($1 ~ "ts[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' titles.cvs > Shows.csv
 awk -F "," ' NR > 1 { if ( (($1 ~ "tm[0-9]") && ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' titles.cvs > Movies.csv
 awk -F "," ' NR > 1 { if ( ((($1 ~ "tm[0-9]") || ($1 ~ "ts[0-9]"))&& ( ($11 != "") && ($12 != "") && ($13 != "") && ($14 != "") && ($15 ~ /^[0-9]/))    ) && (($2 ~ /^[A-Z]/) || ($2 ~ /^[0-9]/))) print $0}' titles.cvs > aux1.csv
@@ -70,7 +69,7 @@ sed -i '/",,,,,,,,,,,,,,"/d' Debrisid.csv #eliminem els espais en blanc d'aquest
 
 #Contadors. Per tal de dir quantes linies s'han eliminat en cada procés hem enginyat aquest mètode. Copiar les dades inservibles a un document per separat,
 #i després contar quantes línies hi ha en aquell document en especific per tal d'obtenir el nombre de línies defectuoses en cada cas.
-echo Finalitzat!
+echo "Finalitzat!"
 echo
 awk 'END{ print NR, "línies eliminades degut a id errònies"}' Debrisid.csv
 awk 'END{print NR, "línies eliminades per espais en blanc:"}' Debrisc.csv
@@ -98,6 +97,8 @@ _saltLinia
 awk -F "," '{ if($3=="MOVIE") print $0}' MiS.csv > Movies.csv
 awk -F "," '{ if($3=="SHOW") print $0}' MiS.csv > Shows.csv
 
+
+
 #borra totes les cometes " per tal de que no hi hagin errors en la seva representació.  ** /g per borrar no només les " del principi de cada línia
 sed -i 's/\"//g' MiS.csv 
 sed -i 's/\"//g' Movies.csv
@@ -112,7 +113,6 @@ awk -F "," 'BEGIN{id="";title="";ctry="";ivotes=0} { if ($13 > ivotes && $3=="MO
 awk -F "," 'BEGIN{id="";title="";ctry="";ivotes=0;isc=0} { if ($13 > ivotes && $3=="SHOW") {ivotes=$13 ; id=$1 ; title=$2 ; ctry=$9; isc=$12}} END{print "Serie més popular segons IMDB:",  id, title, ctry, isc}' MiS.csv
 awk -F "," 'BEGIN{id="";title="";ctry="";coe=0;isc=0} { if ($16 >= coe && $3=="MOVIE") {coe=$16 ; id=$1 ; title=$2 ; ctry=$9 ; isc=$12}} END{print "Pel·lícula amb el millor coeficient IMDB:", id, title, ctry, coe}' MiS.csv
 awk -F "," 'BEGIN{id="";title="";ctry="";coe=0;isc=0} { if ($16 >= coe && $3=="SHOW") {coe=$16 ; id=$1 ; title=$2 ; ctry=$9 ; isc=$12}} END{print "Serie amb el millor coeficient IMDB:", id, title, ctry, coe}' MiS.csv
-#!!!!Aquest últim resultat és correcte segons la pràctica, però en el full de la pràctica creiem que apareix com a resultat del coeficient imdb, 9.5 (el qual creiem que s'atribueix al imdb score), i el nostre resultat és diferent.
 echo
 echo "Tmdb:"
 awk -F "," 'BEGIN{id="";title="";ctry="";sc=0} { if ($15 > sc && $3=="MOVIE") {sc=$15 ; id=$1 ; ctry=$9 ; title=$2}} END{print "Pel·lícula amb millor puntuació TMDB:", id, title, ctry, sc}' MiS.csv
@@ -121,8 +121,8 @@ awk -F "," 'BEGIN{id="";title="";ctry="";tmp=0} { if ($14 > tmp && $3=="MOVIE") 
 awk -F "," 'BEGIN{id="";title="";ctry="";tmp=0;isc=0} { if ($14 > tmp && $3=="SHOW") {tmp=$14 ; id=$1 ; title=$2 ; ctry=$9; isc=$12}} END{print "Serie més popular segons TMDB:",  id, title, ctry, tmp}' MiS.csv
 awk -F "," 'BEGIN{id="";title="";ctry="";coe=0;isc=0} { if ($17 > coe && $3=="MOVIE") {coe=$17 ; id=$1 ; title=$2 ; ctry=$9 ; isc=$12}} END{print "Pel·lícula amb el millor coeficient TMDB:", id, title, ctry, coe}' MiS.csv
 awk -F "," 'BEGIN{id="";title="";ctry="";coe=0} { if ($17 > coe && $3=="SHOW") {coe=$17 ; id=$1 ; title=$2 ; ctry=$9}} END{print "Serie amb el millor coeficient TMDB:", id, title, ctry, coe}' MiS.csv
-#!!!!Hem comprovat que els dos últims resultats d'aquesta secció no són els mateixos que en el full de la pràctica, no entenem si es tracta d'un error, però teòricament els càlculs són correctes
-#i les pel·lícules i séries mostrades són les que tenen el coeficient més alt.
+
+
 
 #afegim títols als documents i eliminen els arxius de dades auxiliars
 _titols
@@ -136,6 +136,7 @@ if [ $b != "S" ];
 then
     _elimData
 fi
+
 
 
 #Comandes que vàrem utilitzar al principi per afegir o no títols als document.
